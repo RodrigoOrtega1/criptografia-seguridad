@@ -83,33 +83,39 @@ def custom_base64_encode(input_bytes):
 
     return ''.join(encoded_chars)
 
-def read_file_by_byte(filename):
-    """ Lee un archivo por bytes
+def read_file_unified(filename, decode_ascii=False):
+    """
+    Lee un archivo en modo binario y opcionalmente lo decodifica como ASCII.
 
     Args:
-        filename (str): El nombre del archivo
+        filename (str): El nombre del archivo a leer.
+        decode_ascii (bool): Si es True, decodifica el contenido como ASCII y lo regresa como str. Si es False, regresa los bytes.
+
+    Returns:
+        str/bytes: El contenido del archivo, como str si decode_ascii es True, o como bytes si es False.
     """
     with open(filename, 'rb') as f:
-        return f.read().decode('ascii')
-    
-def save_decoded_bytes(decoded_bytes, destination_filename):
-    """ Guarda una cadena de bytes en un archivo
+        data = f.read()
+        if decode_ascii:
+            return data.decode('ascii')
+        return data
+
+def save_to_file_unified(data, destination_filename, as_bytes=False, encoding='latin1'):
+    """
+    Guarda datos en un archivo, en modo texto o binario segun el parametro as_bytes.
 
     Args:
-        decoded_bytes (str): Cadena a guardar
-        destination_filename(str): Nombre del archivo donde se guardara
+        data (str o bytes): Los datos a guardar en el archivo.
+        destination_filename (str): El nombre del archivo de destino.
+        as_bytes (bool): Si es True, guarda el archivo en modo binario. Si es False, en modo texto.
+        encoding (str): Codificacion a usar si data es str y as_bytes es True (por defecto 'latin1').
     """
-    with open(destination_filename, 'wb') as f:
-        f.write(decoded_bytes.encode('latin1'))
-
-def read_file(filename):
-    with open(filename, 'rb') as f:
-        file_bytes = f.read()
-    return file_bytes
-
-def save_to_file(encoded, destination_filename):
-    with open(destination_filename, 'w') as f:
-        f.write(encoded)
+    if as_bytes:
+        with open(destination_filename, 'wb') as f:
+            f.write(data.encode(encoding) if isinstance(data, str) else data)
+    else:
+        with open(destination_filename, 'w') as f:
+            f.write(data)
 
 def main():
     if len(sys.argv) != 4:
@@ -120,16 +126,19 @@ def main():
         arg1 = sys.argv[1]
         arg2 = sys.argv[2]
         arg3 = sys.argv[3]
-        if(arg1.lower() == "decodificar"):
-            bytes = read_file_by_byte(arg2)
-            decoded = custom_base64_decode(bytes)
-            save_decoded_bytes(decoded, arg3)
+
+        if arg1.lower() == "decodificar":
+            bytestr = read_file_unified(arg2, decode_ascii=True)
+            decoded = custom_base64_decode(bytestr)
+            save_to_file_unified(decoded, arg3, as_bytes=True, encoding='latin1')
             print(f"Archivo {arg2} decodificado con exito en {arg3}")
-        elif(arg1.lower() == "codificar"):
-            bytes = read_file(arg2)
-            encoded = custom_base64_encode(bytes)
-            save_to_file(encoded, arg3)
+
+        elif arg1.lower() == "codificar":
+            file_bytes = read_file_unified(arg2)
+            encoded = custom_base64_encode(file_bytes)
+            save_to_file_unified(encoded, arg3, as_bytes=False)
             print(f"Archivo {arg2} codificado en Base 64 con exito en {arg3}")
+
         else:
             print("Uso no permitido, checa el comando e intentalo de nuevo\n\tUso: python3 custom_base64_decoder.py <codificar/decodificar> <archivo a co/decodificar> <archivo de destino>")
     
