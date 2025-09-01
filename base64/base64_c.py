@@ -1,3 +1,13 @@
+""" Este programa codifica y decodifica archivos en Base 64 sin usar bibliotecas
+
+Example:
+    Para decodificar un archivo usamos
+    $ python3 base64_c.py decodificar <nombre de archivo a decodificar> <nombre de archivo de destino>
+
+    Para codificar un archivo usamos
+    $ python3 base64_c.py codificar <nombre de archivo a codificar> <nombre de archivo de destino>
+"""
+
 import sys
 
 def custom_base64_decode(input_string):
@@ -124,7 +134,7 @@ def main():
             print("Uso no permitido, checa el comando e intentalo de nuevo\n\tUso: python3 custom_base64_decoder.py <codificar/decodificar> <archivo a co/decodificar> <archivo de destino>")
     
     except FileNotFoundError:
-        print("El archivo a decodificar no existe, checa su nombre e intenta de nuevo")
+        print("El archivo a codificar/decodificar no existe, checa su nombre e intenta de nuevo")
         sys.exit(1)
 
 if __name__=="__main__":
